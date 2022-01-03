@@ -1,6 +1,9 @@
 import lib_dir
 import lib_image
 
+
+lib_dir.create_default_dir()
+
 encodings = []
 names = []
 

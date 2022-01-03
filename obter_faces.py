@@ -22,6 +22,7 @@ def get_faces_from_dir(dir_path):
 
 
 if __name__ == '__main__':
+    lib_dir.create_default_dir()
     dirs = lib_dir.ask_open_directory()
     get_faces_from_dir(dirs)
 
