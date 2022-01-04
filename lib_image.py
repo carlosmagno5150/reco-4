@@ -7,7 +7,6 @@ import uuid
 from tqdm import tqdm
 import os
 
-
 def new_guid():
     return f'{uuid.uuid4().hex}'
 
@@ -187,9 +186,43 @@ def check_image(image_unknown, image_unknown_location, image_unknown_faces_encod
                         fullfilename = f"{settings.get_known_dir()}/{lib_dir.check_name_in_known_dir(pessoa)}.png"
                         pil_image.save(fullfilename)
                         novas.append(fullfilename)
+                    else:
+                        os.remove(temp_name)
     render_image(image_unknown)
     return novas
 
+def check_image_for_known_face(image_url_original, image_unknown, image_unknown_location, image_unknown_faces_encoding, encodings, names):
+    novas = []
+    image_unknown2 = image_unknown.copy()
+    found = 0
+    sb = []    
+    for location, face_encoding in zip(image_unknown_location, image_unknown_faces_encoding):
+        foundThis = 0
+        for known_image, known_name in zip(encodings, names):
+            is_target_face = face_recognition.compare_faces(face_encoding, known_image, tolerance=0.4)
+            if is_target_face[0]:                                
+                top, right, bottom, left = location
+                face_image = image_unknown2[top:bottom, left:right]
+                pil_image = Image.fromarray(face_image)                
+                # temp_name = f"{settings.get_known_dir()}/{lib_dir.get_name(known_name)}.png"
+                temp_name = f"{settings.get_known_dir()}/{lib_dir.check_name_in_known_dir(lib_dir.get_name(known_name))}.png"
+                pil_image.save(temp_name)
+                if get_count_faces(temp_name) == 0:
+                    os.remove(temp_name)
+                found = 1
+                foundThis = 1
+                break
+        if foundThis == 1:
+            sb.append(f'<a href="{image_url_original}" style="float:left; margin-right:10px"><img style="width:200px" src="{image_url_original}" ></img></a>')
+    return sb    
+
+def write_to_file(msg):
+    f = open("asdf.html", "a")
+    f.write("<html><body>")
+    for m in msg:
+        f.write(f"{m}")
+    f.write('</body></html>')
+    f.close()
 
 if __name__ == '__main__':
     # lib_dir.create_default_dir()
